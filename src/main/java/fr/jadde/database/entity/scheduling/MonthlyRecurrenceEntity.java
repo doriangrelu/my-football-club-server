@@ -4,6 +4,8 @@ import javax.persistence.Entity;
 import javax.persistence.Table;
 
 @Entity
-@Table(name = "weekly_recurrence")
-public class WeeklyRecurrence extends AbstractRecurrence {
+@Table(name = "monthly_recurrence")
+public class MonthlyRecurrenceEntity extends AbstractRecurrenceEntity {
+
+
 }

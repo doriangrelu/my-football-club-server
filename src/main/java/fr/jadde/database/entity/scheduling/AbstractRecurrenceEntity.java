@@ -8,7 +8,7 @@ import javax.persistence.InheritanceType;
 
 @Entity
 @Inheritance(strategy = InheritanceType.JOINED)
-public abstract class AbstractRecurrence extends PanacheEntity {
+public abstract class AbstractRecurrenceEntity extends PanacheEntity {
 
 
 }

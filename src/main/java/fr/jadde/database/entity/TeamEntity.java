@@ -10,14 +10,14 @@ import java.util.Objects;
 
 @Entity
 @Table(name = "teams")
-public class Team extends PanacheEntity {
+public class TeamEntity extends PanacheEntity {
 
     @Column(name = "name", unique = true)
     private String name;
 
 
     public String getName() {
-        return name;
+        return this.name;
     }
 
     public void setName(final String name) {
@@ -32,8 +32,8 @@ public class Team extends PanacheEntity {
         if (o == null || Hibernate.getClass(this) != Hibernate.getClass(o)) {
             return false;
         }
-        final Team team = (Team) o;
-        return id != null && Objects.equals(id, team.id);
+        final TeamEntity teamEntity = (TeamEntity) o;
+        return this.id != null && Objects.equals(this.id, teamEntity.id);
     }
 
     @Override

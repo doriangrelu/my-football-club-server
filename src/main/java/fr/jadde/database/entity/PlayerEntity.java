@@ -10,19 +10,19 @@ import java.util.Set;
 
 @Entity
 @Table(name = "player")
-public class Player extends PanacheEntity {
+public class PlayerEntity extends PanacheEntity {
     @ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REFRESH, CascadeType.DETACH})
     @JoinTable(name = "player_matchInstances",
             joinColumns = @JoinColumn(name = "player_id"),
             inverseJoinColumns = @JoinColumn(name = "matchInstances_id"))
-    private Set<MatchInstance> matchInstances = new LinkedHashSet<>();
+    private Set<MatchInstanceEntity> matchInstances = new LinkedHashSet<>();
 
-    public Set<MatchInstance> getMatchInstances() {
-        return matchInstances;
+    public Set<MatchInstanceEntity> getMatchInstances() {
+        return this.matchInstances;
     }
 
-    public void setMatchInstances(final Set<MatchInstance> matchInstances) {
-        this.matchInstances = matchInstances;
+    public void setMatchInstances(final Set<MatchInstanceEntity> matchInstanceEntities) {
+        this.matchInstances = matchInstanceEntities;
     }
 
     @Override
@@ -33,8 +33,8 @@ public class Player extends PanacheEntity {
         if (o == null || Hibernate.getClass(this) != Hibernate.getClass(o)) {
             return false;
         }
-        final Player player = (Player) o;
-        return id != null && Objects.equals(id, player.id);
+        final PlayerEntity playerEntity = (PlayerEntity) o;
+        return this.id != null && Objects.equals(this.id, playerEntity.id);
     }
 
     @Override

@@ -11,36 +11,36 @@ import java.util.Set;
 
 @Entity
 @Table(name = "match_instances")
-public class MatchInstance extends PanacheEntity {
+public class MatchInstanceEntity extends PanacheEntity {
 
     @Column(name = "at", nullable = false)
     private LocalDateTime at;
 
     @ManyToOne(cascade = CascadeType.ALL, optional = false)
     @JoinColumn(name = "match_definition_id", nullable = false)
-    private MatchDefinition matchDefinition;
+    private MatchDefinitionEntity matchDefinition;
 
     @ManyToMany(mappedBy = "matchInstances", cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REFRESH, CascadeType.DETACH})
-    private Set<Player> players = new LinkedHashSet<>();
+    private Set<PlayerEntity> players = new LinkedHashSet<>();
 
-    public Set<Player> getPlayers() {
-        return players;
+    public Set<PlayerEntity> getPlayers() {
+        return this.players;
     }
 
-    public void setPlayers(final Set<Player> players) {
-        this.players = players;
+    public void setPlayers(final Set<PlayerEntity> playerEntities) {
+        this.players = playerEntities;
     }
 
-    public MatchDefinition getMatchDefinition() {
-        return matchDefinition;
+    public MatchDefinitionEntity getMatchDefinition() {
+        return this.matchDefinition;
     }
 
-    public void setMatchDefinition(final MatchDefinition matchDefinition) {
-        this.matchDefinition = matchDefinition;
+    public void setMatchDefinition(final MatchDefinitionEntity matchDefinitionEntity) {
+        this.matchDefinition = matchDefinitionEntity;
     }
 
     public LocalDateTime getAt() {
-        return at;
+        return this.at;
     }
 
     public void setAt(final LocalDateTime at) {
@@ -55,8 +55,8 @@ public class MatchInstance extends PanacheEntity {
         if (o == null || Hibernate.getClass(this) != Hibernate.getClass(o)) {
             return false;
         }
-        final MatchInstance that = (MatchInstance) o;
-        return id != null && Objects.equals(id, that.id);
+        final MatchInstanceEntity that = (MatchInstanceEntity) o;
+        return this.id != null && Objects.equals(this.id, that.id);
     }
 
     @Override

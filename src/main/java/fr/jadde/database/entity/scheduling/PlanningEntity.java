@@ -1,6 +1,6 @@
 package fr.jadde.database.entity.scheduling;
 
-import fr.jadde.database.entity.MatchDefinition;
+import fr.jadde.database.entity.MatchDefinitionEntity;
 import org.hibernate.Hibernate;
 
 import javax.persistence.Entity;
@@ -11,19 +11,19 @@ import java.util.Objects;
 
 @Entity
 @Table(name = "plannings")
-public class Planning extends MatchDefinition {
+public class PlanningEntity extends MatchDefinitionEntity {
 
     @ManyToOne(optional = false)
     @JoinColumn(name = "match_definition_id", nullable = false)
-    private MatchDefinition matchDefinition;
+    private MatchDefinitionEntity matchDefinitionEntity;
 
 
-    public MatchDefinition getMatchDefinition() {
-        return matchDefinition;
+    public MatchDefinitionEntity getMatchDefinition() {
+        return this.matchDefinitionEntity;
     }
 
-    public void setMatchDefinition(final MatchDefinition matchDefinition) {
-        this.matchDefinition = matchDefinition;
+    public void setMatchDefinition(final MatchDefinitionEntity matchDefinitionEntity) {
+        this.matchDefinitionEntity = matchDefinitionEntity;
     }
 
     @Override
@@ -34,8 +34,8 @@ public class Planning extends MatchDefinition {
         if (o == null || Hibernate.getClass(this) != Hibernate.getClass(o)) {
             return false;
         }
-        final Planning planning = (Planning) o;
-        return id != null && Objects.equals(id, planning.id);
+        final PlanningEntity planning = (PlanningEntity) o;
+        return this.id != null && Objects.equals(this.id, planning.id);
     }
 
     @Override

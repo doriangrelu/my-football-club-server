@@ -1,7 +1,7 @@
 package fr.jadde.resource;
 
-import fr.jadde.database.entity.Team;
-import fr.jadde.domain.command.CreateTeamCommand;
+import fr.jadde.database.entity.TeamEntity;
+import fr.jadde.domain.command.team.CreateTeamCommand;
 import fr.jadde.service.TeamService;
 import io.smallrye.mutiny.Uni;
 
@@ -21,12 +21,12 @@ public class TeamResource {
     }
 
     @POST
-    public Uni<Team> create(final @Valid CreateTeamCommand command) {
+    public Uni<TeamEntity> create(final @Valid CreateTeamCommand command) {
         return this.teamService.create(command);
     }
 
     @GET
-    public Uni<List<Team>> all() {
+    public Uni<List<TeamEntity>> all() {
         return this.teamService.getAll();
     }
 
