@@ -1,20 +1,27 @@
-package fr.jadde.database.entity;
+package fr.jadde.database.entity.match;
 
-import fr.jadde.database.entity.scheduling.PlanningEntity;
-import io.quarkus.hibernate.reactive.panache.PanacheEntity;
+import fr.jadde.database.entity.TeamEntity;
+import io.quarkus.hibernate.reactive.panache.PanacheEntityBase;
 import org.hibernate.Hibernate;
 
 import javax.persistence.*;
 import java.util.LinkedHashSet;
 import java.util.Objects;
 import java.util.Set;
+import java.util.UUID;
 
 @Entity
 @Table(name = "match_definitions")
-public class MatchDefinitionEntity extends PanacheEntity {
+public class MatchDefinitionEntity extends PanacheEntityBase {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    @Column(name = "id", nullable = false)
+    private UUID id;
 
     @Column(name = "label")
     private String label;
+
 
     @Column(name = "number_of_participant")
     private Short numberOfParticipant;
@@ -22,12 +29,36 @@ public class MatchDefinitionEntity extends PanacheEntity {
     @OneToMany(mappedBy = "matchDefinitionEntity", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<PlanningEntity> plannings = new LinkedHashSet<>();
 
-    @OneToMany(mappedBy = "matchDefinition", cascade = CascadeType.ALL, orphanRemoval = true)
-    private Set<MatchInstanceEntity> matchInstances = new LinkedHashSet<>();
-
     @ManyToOne(optional = false)
     @JoinColumn(name = "team_id", nullable = false)
     private TeamEntity team;
+
+    @Column(name = "number_of_days_before_opening", nullable = false)
+    private Short numberOfDaysBeforeOpening;
+
+    @Column(name = "chat_opened", nullable = false)
+    private Boolean chatOpened = false;
+
+
+    public UUID getId() {
+        return this.id;
+    }
+
+    public Boolean getChatOpened() {
+        return this.chatOpened;
+    }
+
+    public void setChatOpened(final Boolean chatOpened) {
+        this.chatOpened = chatOpened;
+    }
+
+    public Short getNumberOfDaysBeforeOpening() {
+        return this.numberOfDaysBeforeOpening;
+    }
+
+    public void setNumberOfDaysBeforeOpening(final Short numberOfDaysBeforeOpening) {
+        this.numberOfDaysBeforeOpening = numberOfDaysBeforeOpening;
+    }
 
     public TeamEntity getTeam() {
         return this.team;
@@ -35,15 +66,6 @@ public class MatchDefinitionEntity extends PanacheEntity {
 
     public void setTeam(final TeamEntity team) {
         this.team = team;
-    }
-
-    public Set<MatchInstanceEntity> getMatchInstances() {
-        return this.matchInstances;
-    }
-
-    public void setMatchInstances(final Set<MatchInstanceEntity> matchInstanceEntities) {
-        matchInstanceEntities.forEach(matchInstanceEntity -> matchInstanceEntity.setMatchDefinition(this));
-        this.matchInstances = matchInstanceEntities;
     }
 
     public Set<PlanningEntity> getPlannings() {

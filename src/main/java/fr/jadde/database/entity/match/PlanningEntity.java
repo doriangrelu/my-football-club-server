@@ -1,13 +1,14 @@
-package fr.jadde.database.entity.scheduling;
+package fr.jadde.database.entity.match;
 
-import fr.jadde.database.entity.MatchDefinitionEntity;
 import io.quarkus.hibernate.reactive.panache.PanacheEntity;
 import org.hibernate.Hibernate;
 
 import javax.persistence.*;
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.util.LinkedHashSet;
 import java.util.Objects;
+import java.util.Set;
 
 @Entity
 @Table(name = "plannings")
@@ -17,6 +18,10 @@ public abstract class PlanningEntity extends PanacheEntity {
     @ManyToOne(optional = false)
     @JoinColumn(name = "match_definition_id", nullable = false)
     private MatchDefinitionEntity matchDefinitionEntity;
+
+    @OneToMany(mappedBy = "planning", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Set<MatchInstanceEntity> matchInstances = new LinkedHashSet<>();
+
 
     @Column(name = "start_at", nullable = false)
     private LocalDate startAt;
@@ -49,6 +54,15 @@ public abstract class PlanningEntity extends PanacheEntity {
 
     public void setStartAt(final LocalDate startAt) {
         this.startAt = startAt;
+    }
+
+    public Set<MatchInstanceEntity> getMatchInstances() {
+        return this.matchInstances;
+    }
+
+    public void setMatchInstances(final Set<MatchInstanceEntity> matchInstanceEntities) {
+        matchInstanceEntities.forEach(matchInstanceEntity -> matchInstanceEntity.setPlanning(this));
+        this.matchInstances = matchInstanceEntities;
     }
 
     @Override

@@ -1,4 +1,4 @@
-package fr.jadde.database.entity.scheduling;
+package fr.jadde.database.entity.match;
 
 import org.hibernate.Hibernate;
 

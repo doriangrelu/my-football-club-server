@@ -1,10 +1,10 @@
 package fr.jadde.service;
 
-import fr.jadde.database.entity.MatchDefinitionEntity;
-import fr.jadde.database.entity.MatchInstanceEntity;
 import fr.jadde.database.entity.TeamEntity;
-import fr.jadde.database.entity.scheduling.PlanningEntity;
-import fr.jadde.database.entity.scheduling.WeeklyPlanningEntity;
+import fr.jadde.database.entity.match.MatchDefinitionEntity;
+import fr.jadde.database.entity.match.MatchInstanceEntity;
+import fr.jadde.database.entity.match.PlanningEntity;
+import fr.jadde.database.entity.match.WeeklyPlanningEntity;
 import fr.jadde.domain.command.match.CreateDefinition;
 import fr.jadde.domain.model.match.MatchDefinition;
 import fr.jadde.service.mapper.MatchDefinitionMapper;
@@ -12,10 +12,12 @@ import io.smallrye.mutiny.Uni;
 import org.hibernate.reactive.mutiny.Mutiny;
 
 import javax.enterprise.context.ApplicationScoped;
+import javax.validation.ConstraintViolationException;
 import java.time.DayOfWeek;
 import java.time.Duration;
 import java.time.LocalDate;
 import java.util.NoSuchElementException;
+import java.util.UUID;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Stream;
 
@@ -36,7 +38,20 @@ public class MatchService {
         return recursiveDay(start.plusDays(1), dayOfWeek);
     }
 
+    public Uni<MatchDefinition> getDefinition(final UUID uuid) {
+        final AtomicReference<MatchDefinitionEntity> definition = new AtomicReference<>();
+        return MatchDefinitionEntity.<MatchDefinitionEntity>findById(uuid.toString())
+                .onItem()
+                .ifNull()
+                .failWith(() -> new NoSuchElementException("Missing associated team with identifier '" + uuid + "'"))
+                .invoke(definition::set)
+                .chain(definitionEntity -> Mutiny.fetch(definitionEntity.getPlannings()))
+                .map(dummy -> definition.get())
+                .map(this.definitionMapper::from);
+    }
+
     public Uni<MatchDefinition> createDefinition(final CreateDefinition createDefinition) {
+        this.handleCheckPlanningDatesOrFail(createDefinition);
         final MatchDefinitionEntity definitionEntity = this.definitionMapper.from(createDefinition);
         final AtomicReference<TeamEntity> team = new AtomicReference<>();
         return TeamEntity.<TeamEntity>findById(createDefinition.teamIdentifier())
@@ -52,6 +67,14 @@ public class MatchService {
                     return team.get().persistAndFlush();
                 })
                 .map(dummy -> this.definitionMapper.from(definitionEntity));
+    }
+
+    private void handleCheckPlanningDatesOrFail(final CreateDefinition definition) {
+        definition.plannings().forEach(planning -> {
+            if (planning.getStartAt().isAfter(planning.getEndAt())) {
+                throw new ConstraintViolationException("{error.notBefore}", null);
+            }
+        });
     }
 
     private void handleCreateInstances(final MatchDefinitionEntity definitionEntity) {
@@ -75,7 +98,7 @@ public class MatchService {
             stream.limit(daysBetween)
                     .forEach(matchInstanceEntity -> {
                         if (!at.get().isAfter(planningEntity.getEndAt())) {
-                            matchInstanceEntity.setMatchDefinition(planningEntity.getMatchDefinition());
+                            matchInstanceEntity.setPlanning(planningEntity);
                             matchInstanceEntity.setAt(at.get().atStartOfDay());
                             final LocalDate nextDate = at.get().plusDays(1);
                             at.set(recursiveDay(nextDate, weeklyPlanningEntity.getDayOfWeek()));

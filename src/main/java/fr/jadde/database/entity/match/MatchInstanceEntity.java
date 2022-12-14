@@ -1,4 +1,4 @@
-package fr.jadde.database.entity;
+package fr.jadde.database.entity.match;
 
 import fr.jadde.database.entity.user.AbstractUser;
 import io.quarkus.hibernate.reactive.panache.PanacheEntity;
@@ -18,8 +18,8 @@ public class MatchInstanceEntity extends PanacheEntity {
     private LocalDateTime at;
 
     @ManyToOne(optional = false)
-    @JoinColumn(name = "match_definition_id", nullable = false)
-    private MatchDefinitionEntity matchDefinition;
+    @JoinColumn(name = "planning_id", nullable = false)
+    private PlanningEntity planning;
 
     @ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REFRESH, CascadeType.DETACH})
     @JoinTable(name = "match_subscriptions",
@@ -35,13 +35,13 @@ public class MatchInstanceEntity extends PanacheEntity {
         this.players = players;
     }
 
-    public MatchDefinitionEntity getMatchDefinition() {
-        return this.matchDefinition;
+    public PlanningEntity getPlanning() {
+        return this.planning;
     }
 
-    public void setMatchDefinition(final MatchDefinitionEntity matchDefinitionEntity) {
-        matchDefinitionEntity.getMatchInstances().add(this);
-        this.matchDefinition = matchDefinitionEntity;
+    public void setPlanning(final PlanningEntity planning) {
+        planning.getMatchInstances().add(this);
+        this.planning = planning;
     }
 
     public LocalDateTime getAt() {

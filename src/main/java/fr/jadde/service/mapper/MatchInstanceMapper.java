@@ -1,6 +1,6 @@
 package fr.jadde.service.mapper;
 
-import fr.jadde.database.entity.MatchInstanceEntity;
+import fr.jadde.database.entity.match.MatchInstanceEntity;
 import fr.jadde.domain.model.match.MatchInstance;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;

@@ -1,15 +1,18 @@
 package fr.jadde.service.mapper;
 
-import fr.jadde.database.entity.scheduling.PlanningEntity;
-import fr.jadde.database.entity.scheduling.WeeklyPlanningEntity;
+import fr.jadde.database.entity.match.PlanningEntity;
+import fr.jadde.database.entity.match.WeeklyPlanningEntity;
 import fr.jadde.domain.command.match.scheduling.AbstractPlanningModification;
 import fr.jadde.domain.command.match.scheduling.WeeklyPlanningModification;
 import fr.jadde.domain.model.scheduling.AbstractPlanning;
 import fr.jadde.domain.model.scheduling.WeeklyPlanning;
 import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
 import org.mapstruct.MappingConstants;
 
-@Mapper(componentModel = MappingConstants.ComponentModel.CDI)
+@Mapper(componentModel = MappingConstants.ComponentModel.CDI, uses = {
+        MatchInstanceMapper.class
+})
 public interface PlanningMapper {
 
     default PlanningEntity from(final AbstractPlanningModification planning) {
@@ -28,6 +31,7 @@ public interface PlanningMapper {
 
     WeeklyPlanningEntity from(WeeklyPlanningModification planning);
 
+    @Mapping(source = "matchInstances", target = "instances")
     WeeklyPlanning from(WeeklyPlanningEntity planning);
 
 }

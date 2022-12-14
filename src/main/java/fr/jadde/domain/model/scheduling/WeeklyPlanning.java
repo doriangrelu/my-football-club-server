@@ -3,6 +3,7 @@ package fr.jadde.domain.model.scheduling;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import fr.jadde.domain.model.match.MatchInstance;
 import fr.jadde.service.util.DateTimeDeserializer;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
@@ -10,6 +11,7 @@ import org.apache.commons.lang3.builder.HashCodeBuilder;
 import java.time.DayOfWeek;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.util.Set;
 
 public class WeeklyPlanning extends AbstractPlanning {
 
@@ -19,9 +21,10 @@ public class WeeklyPlanning extends AbstractPlanning {
     public WeeklyPlanning(final @JsonDeserialize(using = DateTimeDeserializer.class) @JsonProperty("startAt") LocalDateTime startAt,
                           final @JsonDeserialize(using = DateTimeDeserializer.class) @JsonProperty("endAt") LocalDateTime endAt,
                           final @JsonProperty("hour") LocalTime hour,
-                          final @JsonProperty("dayOfWeek") DayOfWeek dayOfWeek
+                          final @JsonProperty("dayOfWeek") DayOfWeek dayOfWeek,
+                          final @JsonProperty("instances") Set<MatchInstance> instances
     ) {
-        super(startAt, endAt, hour);
+        super(startAt, endAt, hour, instances);
         this.dayOfWeek = dayOfWeek;
     }
 

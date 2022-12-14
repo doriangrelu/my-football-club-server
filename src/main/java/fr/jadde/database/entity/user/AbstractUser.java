@@ -1,6 +1,6 @@
 package fr.jadde.database.entity.user;
 
-import fr.jadde.database.entity.MatchInstanceEntity;
+import fr.jadde.database.entity.match.MatchInstanceEntity;
 import io.quarkus.hibernate.reactive.panache.PanacheEntity;
 import org.hibernate.Hibernate;
 
