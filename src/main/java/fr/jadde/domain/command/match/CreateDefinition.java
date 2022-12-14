@@ -1,14 +1,44 @@
 package fr.jadde.domain.command.match;
 
-public class CreateDefinition {
+import fr.jadde.domain.model.scheduling.AbstractPlanning;
+import io.quarkus.runtime.annotations.RegisterForReflection;
+import org.hibernate.validator.constraints.Range;
 
-    private final int teamIdentifier;
+import javax.validation.constraints.NotNull;
+import java.util.Set;
 
-    private final String label;
+@RegisterForReflection
+public record CreateDefinition(
+        @NotNull long teamIdentifier,
+        @NotNull String label,
+        @Range(min = 1, max = 22) @NotNull short numberOfParticipant,
+        @NotNull Set<AbstractPlanning> plannings
+) {
 
-
-    public CreateDefinition(final int teamIdentifier, final String label) {
+    public CreateDefinition(final long teamIdentifier, final String label, final short numberOfParticipant, final Set<AbstractPlanning> plannings) {
         this.teamIdentifier = teamIdentifier;
         this.label = label;
+        this.numberOfParticipant = numberOfParticipant;
+        this.plannings = plannings;
+    }
+
+    @Override
+    public long teamIdentifier() {
+        return this.teamIdentifier;
+    }
+
+    @Override
+    public Set<AbstractPlanning> plannings() {
+        return this.plannings;
+    }
+
+    @Override
+    public String label() {
+        return this.label;
+    }
+
+    @Override
+    public short numberOfParticipant() {
+        return this.numberOfParticipant;
     }
 }

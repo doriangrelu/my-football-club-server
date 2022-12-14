@@ -4,6 +4,20 @@ This project uses Quarkus, the Supersonic Subatomic Java Framework.
 
 If you want to learn more about Quarkus, please visit its website: https://quarkus.io/ .
 
+## Creating MySQL docker container (optional)
+
+If you want to create manualy a MySQL docker container, run this command:
+
+```
+docker run --name mysql-dev -e MYSQL_USER=foot -e MYSQL_PASSWORD=foot -e MYSQL_ROOT_PASSWORD=root -e MYSQL_DATABASE=footdb -d -p 3306:3306 mysql
+```
+
+You need to change quarkus property according to the need:
+
+```
+quarkus.datasource.devservices.enabled=false|false
+```
+
 ## Running the application in dev mode
 
 You can run your application in dev mode that enables live coding using:

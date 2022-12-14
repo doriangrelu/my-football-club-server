@@ -1,5 +1,6 @@
 package fr.jadde.database.entity;
 
+import fr.jadde.database.entity.user.AbstractUser;
 import io.quarkus.hibernate.reactive.panache.PanacheEntity;
 import org.hibernate.Hibernate;
 
@@ -20,15 +21,18 @@ public class MatchInstanceEntity extends PanacheEntity {
     @JoinColumn(name = "match_definition_id", nullable = false)
     private MatchDefinitionEntity matchDefinition;
 
-    @ManyToMany(mappedBy = "matchInstances", cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REFRESH, CascadeType.DETACH})
-    private Set<PlayerEntity> players = new LinkedHashSet<>();
+    @ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REFRESH, CascadeType.DETACH})
+    @JoinTable(name = "match_subscriptions",
+            joinColumns = @JoinColumn(name = "match_instance_id"),
+            inverseJoinColumns = @JoinColumn(name = "player_id"))
+    private Set<AbstractUser> players = new LinkedHashSet<>();
 
-    public Set<PlayerEntity> getPlayers() {
+    public Set<AbstractUser> getPlayers() {
         return this.players;
     }
 
-    public void setPlayers(final Set<PlayerEntity> playerEntities) {
-        this.players = playerEntities;
+    public void setPlayers(final Set<AbstractUser> players) {
+        this.players = players;
     }
 
     public MatchDefinitionEntity getMatchDefinition() {

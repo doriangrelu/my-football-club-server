@@ -3,10 +3,10 @@ package fr.jadde.database.entity;
 import io.quarkus.hibernate.reactive.panache.PanacheEntity;
 import org.hibernate.Hibernate;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Table;
+import javax.persistence.*;
+import java.util.LinkedHashSet;
 import java.util.Objects;
+import java.util.Set;
 
 @Entity
 @Table(name = "teams")
@@ -15,6 +15,16 @@ public class TeamEntity extends PanacheEntity {
     @Column(name = "name", unique = true)
     private String name;
 
+    @OneToMany(mappedBy = "team", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Set<MatchDefinitionEntity> matchDefinitions = new LinkedHashSet<>();
+
+    public Set<MatchDefinitionEntity> getMatchDefinitions() {
+        return this.matchDefinitions;
+    }
+
+    public void setMatchDefinitions(final Set<MatchDefinitionEntity> matchDefinitions) {
+        this.matchDefinitions = matchDefinitions;
+    }
 
     public String getName() {
         return this.name;

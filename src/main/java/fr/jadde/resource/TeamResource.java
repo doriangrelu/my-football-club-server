@@ -6,9 +6,7 @@ import fr.jadde.service.TeamService;
 import io.smallrye.mutiny.Uni;
 
 import javax.validation.Valid;
-import javax.ws.rs.GET;
-import javax.ws.rs.POST;
-import javax.ws.rs.Path;
+import javax.ws.rs.*;
 import java.util.List;
 
 @Path("/team")
@@ -21,11 +19,14 @@ public class TeamResource {
     }
 
     @POST
+    @Consumes("application/json")
+    @Produces("application/json")
     public Uni<TeamEntity> create(final @Valid CreateTeamCommand command) {
         return this.teamService.create(command);
     }
 
     @GET
+    @Produces("application/json")
     public Uni<List<TeamEntity>> all() {
         return this.teamService.getAll();
     }

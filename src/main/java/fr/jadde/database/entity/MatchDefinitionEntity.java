@@ -25,11 +25,24 @@ public class MatchDefinitionEntity extends PanacheEntity {
     @OneToMany(mappedBy = "matchDefinition", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<MatchInstanceEntity> matchInstances = new LinkedHashSet<>();
 
+    @ManyToOne(optional = false)
+    @JoinColumn(name = "team_id", nullable = false, unique = true)
+    private TeamEntity team;
+
+    public TeamEntity getTeam() {
+        return this.team;
+    }
+
+    public void setTeam(final TeamEntity team) {
+        this.team = team;
+    }
+
     public Set<MatchInstanceEntity> getMatchInstances() {
         return this.matchInstances;
     }
 
     public void setMatchInstances(final Set<MatchInstanceEntity> matchInstanceEntities) {
+        matchInstanceEntities.forEach(matchInstanceEntity -> matchInstanceEntity.setMatchDefinition(this));
         this.matchInstances = matchInstanceEntities;
     }
 
@@ -38,6 +51,7 @@ public class MatchDefinitionEntity extends PanacheEntity {
     }
 
     public void setPlannings(final Set<PlanningEntity> plannings) {
+        plannings.forEach(planningEntity -> planningEntity.setMatchDefinition(this));
         this.plannings = plannings;
     }
 
