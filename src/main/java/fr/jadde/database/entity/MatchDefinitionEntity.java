@@ -26,7 +26,7 @@ public class MatchDefinitionEntity extends PanacheEntity {
     private Set<MatchInstanceEntity> matchInstances = new LinkedHashSet<>();
 
     @ManyToOne(optional = false)
-    @JoinColumn(name = "team_id", nullable = false, unique = true)
+    @JoinColumn(name = "team_id", nullable = false)
     private TeamEntity team;
 
     public TeamEntity getTeam() {

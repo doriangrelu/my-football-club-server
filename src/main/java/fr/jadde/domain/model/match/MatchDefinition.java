@@ -1,5 +1,6 @@
-package fr.jadde.domain.model;
+package fr.jadde.domain.model.match;
 
+import fr.jadde.domain.model.Team;
 import fr.jadde.domain.model.scheduling.AbstractPlanning;
 
 import java.util.Set;

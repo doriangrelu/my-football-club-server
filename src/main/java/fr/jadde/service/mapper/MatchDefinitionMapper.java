@@ -2,7 +2,7 @@ package fr.jadde.service.mapper;
 
 import fr.jadde.database.entity.MatchDefinitionEntity;
 import fr.jadde.domain.command.match.CreateDefinition;
-import fr.jadde.domain.model.MatchDefinition;
+import fr.jadde.domain.model.match.MatchDefinition;
 import org.mapstruct.Mapper;
 import org.mapstruct.MappingConstants;
 

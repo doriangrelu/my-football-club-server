@@ -1,12 +1,15 @@
-package fr.jadde.domain.model.scheduling;
+package fr.jadde.domain.command.match.scheduling;
 
-import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import fr.jadde.service.util.DateTimeDeserializer;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 
+import javax.validation.constraints.NotNull;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 
@@ -15,23 +18,30 @@ import java.time.LocalTime;
         property = "type"
 )
 @JsonSubTypes({
-        @JsonSubTypes.Type(value = WeeklyPlanning.class, name = "day"),
+        @JsonSubTypes.Type(value = WeeklyPlanningModification.class, name = "weekly"),
 })
-public abstract class AbstractPlanning {
+public abstract class AbstractPlanningModification {
 
+    @NotNull
+    @JsonProperty("startAt")
+    @JsonDeserialize(using = DateTimeDeserializer.class)
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd-MM-yyyy hh:mm:ss")
     private final LocalDateTime startAt;
 
+    @NotNull
+    @JsonProperty("endAt")
+    @JsonDeserialize(using = DateTimeDeserializer.class)
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd-MM-yyyy hh:mm:ss")
     private final LocalDateTime endAt;
 
+    @NotNull
+    @JsonProperty("hour")
     @JsonFormat(pattern = "HH:mm:ss")
     private final LocalTime hour;
 
-    @JsonCreator
-    protected AbstractPlanning(final LocalDateTime startAt,
-                               final LocalDateTime endAt,
-                               final LocalTime hour) {
+    protected AbstractPlanningModification(final LocalDateTime startAt,
+                                           final LocalDateTime endAt,
+                                           final LocalTime hour) {
         this.startAt = startAt;
         this.endAt = endAt;
         this.hour = hour;
@@ -55,7 +65,7 @@ public abstract class AbstractPlanning {
             return true;
         }
 
-        if (!(o instanceof final AbstractPlanning that)) {
+        if (!(o instanceof final AbstractPlanningModification that)) {
             return false;
         }
 

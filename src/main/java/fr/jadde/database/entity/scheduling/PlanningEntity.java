@@ -21,7 +21,7 @@ public abstract class PlanningEntity extends PanacheEntity {
     @Column(name = "start_at", nullable = false)
     private LocalDate startAt;
 
-    @Column(name = "end_at")
+    @Column(name = "end_at", nullable = false)
     private LocalDate endAt;
 
     @Column(name = "hour", nullable = false)

@@ -17,7 +17,7 @@ public class MatchInstanceEntity extends PanacheEntity {
     @Column(name = "at", nullable = false)
     private LocalDateTime at;
 
-    @ManyToOne(cascade = CascadeType.ALL, optional = false)
+    @ManyToOne(optional = false)
     @JoinColumn(name = "match_definition_id", nullable = false)
     private MatchDefinitionEntity matchDefinition;
 
@@ -40,6 +40,7 @@ public class MatchInstanceEntity extends PanacheEntity {
     }
 
     public void setMatchDefinition(final MatchDefinitionEntity matchDefinitionEntity) {
+        matchDefinitionEntity.getMatchInstances().add(this);
         this.matchDefinition = matchDefinitionEntity;
     }
 

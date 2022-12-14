@@ -1,6 +1,6 @@
 package fr.jadde.domain.command.match;
 
-import fr.jadde.domain.model.scheduling.AbstractPlanning;
+import fr.jadde.domain.command.match.scheduling.AbstractPlanningModification;
 import io.quarkus.runtime.annotations.RegisterForReflection;
 import org.hibernate.validator.constraints.Range;
 
@@ -12,10 +12,10 @@ public record CreateDefinition(
         @NotNull long teamIdentifier,
         @NotNull String label,
         @Range(min = 1, max = 22) @NotNull short numberOfParticipant,
-        @NotNull Set<AbstractPlanning> plannings
+        @NotNull Set<AbstractPlanningModification> plannings
 ) {
 
-    public CreateDefinition(final long teamIdentifier, final String label, final short numberOfParticipant, final Set<AbstractPlanning> plannings) {
+    public CreateDefinition(final long teamIdentifier, final String label, final short numberOfParticipant, final Set<AbstractPlanningModification> plannings) {
         this.teamIdentifier = teamIdentifier;
         this.label = label;
         this.numberOfParticipant = numberOfParticipant;
@@ -28,7 +28,7 @@ public record CreateDefinition(
     }
 
     @Override
-    public Set<AbstractPlanning> plannings() {
+    public Set<AbstractPlanningModification> plannings() {
         return this.plannings;
     }
 

@@ -1,7 +1,7 @@
 package fr.jadde.resource;
 
 import fr.jadde.domain.command.match.CreateDefinition;
-import fr.jadde.domain.model.MatchDefinition;
+import fr.jadde.domain.model.match.MatchDefinition;
 import fr.jadde.service.MatchService;
 import io.smallrye.mutiny.Uni;
 
