@@ -10,7 +10,12 @@ public record MatchDefinition(
         Team team,
         String label,
         short numberOfParticipant,
-        Set<AbstractPlanning> plannings
+
+        short numberOfDaysBeforeOpening,
+
+        Set<AbstractPlanning> plannings,
+
+        Set<MatchInstance> instances
 ) {
 
 }

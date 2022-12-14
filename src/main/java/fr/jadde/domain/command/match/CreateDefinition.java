@@ -11,34 +11,9 @@ import java.util.Set;
 public record CreateDefinition(
         @NotNull long teamIdentifier,
         @NotNull String label,
+        @NotNull boolean chatOpened,
+        @Range(min = 1, max = 10) short numberOfDaysBeforeOpening,
         @Range(min = 1, max = 22) @NotNull short numberOfParticipant,
         @NotNull Set<AbstractPlanningModification> plannings
 ) {
-
-    public CreateDefinition(final long teamIdentifier, final String label, final short numberOfParticipant, final Set<AbstractPlanningModification> plannings) {
-        this.teamIdentifier = teamIdentifier;
-        this.label = label;
-        this.numberOfParticipant = numberOfParticipant;
-        this.plannings = plannings;
-    }
-
-    @Override
-    public long teamIdentifier() {
-        return this.teamIdentifier;
-    }
-
-    @Override
-    public Set<AbstractPlanningModification> plannings() {
-        return this.plannings;
-    }
-
-    @Override
-    public String label() {
-        return this.label;
-    }
-
-    @Override
-    public short numberOfParticipant() {
-        return this.numberOfParticipant;
-    }
 }
