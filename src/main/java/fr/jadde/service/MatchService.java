@@ -7,8 +7,10 @@ import fr.jadde.database.entity.match.PlanningEntity;
 import fr.jadde.database.entity.match.WeeklyPlanningEntity;
 import fr.jadde.domain.command.match.CreateDefinition;
 import fr.jadde.domain.model.match.MatchDefinition;
+import fr.jadde.exception.HttpPrintableException;
 import fr.jadde.service.mapper.MatchDefinitionMapper;
 import io.smallrye.mutiny.Uni;
+import io.vertx.ext.web.handler.HttpException;
 import org.hibernate.reactive.mutiny.Mutiny;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -16,8 +18,7 @@ import javax.validation.ConstraintViolationException;
 import java.time.DayOfWeek;
 import java.time.Duration;
 import java.time.LocalDate;
-import java.util.NoSuchElementException;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Stream;
 
@@ -38,15 +39,17 @@ public class MatchService {
         return recursiveDay(start.plusDays(1), dayOfWeek);
     }
 
+    private static Uni<Void> fetchMatchInstances(final Set<MatchInstanceEntity> entities) {
+        return Uni.combine().all().unis(
+                entities.stream().map(matchInstanceEntity -> Mutiny.fetch(matchInstanceEntity.getPlayers())).toList()
+        ).discardItems();
+    }
+
     public Uni<MatchDefinition> getDefinition(final UUID uuid) {
-        final AtomicReference<MatchDefinitionEntity> definition = new AtomicReference<>();
-        return MatchDefinitionEntity.<MatchDefinitionEntity>findById(uuid.toString())
+        return MatchDefinitionEntity.<MatchDefinitionEntity>findById(uuid)
                 .onItem()
                 .ifNull()
-                .failWith(() -> new NoSuchElementException("Missing associated team with identifier '" + uuid + "'"))
-                .invoke(definition::set)
-                .chain(definitionEntity -> Mutiny.fetch(definitionEntity.getPlannings()))
-                .map(dummy -> definition.get())
+                .failWith(() -> HttpPrintableException.builder(404, "Not found").build())
                 .map(this.definitionMapper::from);
     }
 
@@ -57,7 +60,7 @@ public class MatchService {
         return TeamEntity.<TeamEntity>findById(createDefinition.teamIdentifier())
                 .onItem()
                 .ifNull()
-                .failWith(() -> new NoSuchElementException("Missing associated team with identifier '" + createDefinition.teamIdentifier() + "'"))
+                .failWith(() -> HttpPrintableException.builder(404, "Not found").build())
                 .invoke(team::set)
                 .chain(teamEntity -> Mutiny.fetch(teamEntity.getMatchDefinitions()))
                 .flatMap(matchDefinitionEntities -> {
@@ -72,7 +75,9 @@ public class MatchService {
     private void handleCheckPlanningDatesOrFail(final CreateDefinition definition) {
         definition.plannings().forEach(planning -> {
             if (planning.getStartAt().isAfter(planning.getEndAt())) {
-                throw new ConstraintViolationException("{error.notBefore}", null);
+                HttpPrintableException.builder(400, "Bad request")
+                        .withError("notBefore.%start%.%end%", Map.entry("start", "start"), Map.entry("end", "end"))
+                        .buildAndThrow();
             }
         });
     }
@@ -83,26 +88,22 @@ public class MatchService {
 
     private void createInstanceFromPlanning(final PlanningEntity planningEntity) {
         if (planningEntity instanceof WeeklyPlanningEntity weeklyPlanningEntity) {
-            final AtomicReference<LocalDate> at = new AtomicReference<>(
-                    recursiveDay(planningEntity.getStartAt(), weeklyPlanningEntity.getDayOfWeek())
-            );
             final long daysBetween = Duration.between(
                     planningEntity.getStartAt().atStartOfDay(),
                     planningEntity.getEndAt().atStartOfDay()
             ).toDays();
+            final LocalDate now = LocalDate.now();
 
-            final Stream<MatchInstanceEntity> stream = daysBetween > 365 ?
-                    Stream.generate(MatchInstanceEntity::new).parallel() : // Use thread worker
-                    Stream.generate(MatchInstanceEntity::new); // Not necessary
-
-            stream.limit(daysBetween)
-                    .forEach(matchInstanceEntity -> {
-                        if (!at.get().isAfter(planningEntity.getEndAt())) {
-                            matchInstanceEntity.setPlanning(planningEntity);
-                            matchInstanceEntity.setAt(at.get().atStartOfDay());
-                            final LocalDate nextDate = at.get().plusDays(1);
-                            at.set(recursiveDay(nextDate, weeklyPlanningEntity.getDayOfWeek()));
-                        }
+            final LocalDate startAtFirstDay = recursiveDay(planningEntity.getStartAt(), weeklyPlanningEntity.getDayOfWeek());
+            Stream.iterate(startAtFirstDay, localDate -> localDate.plusDays(1))
+                    .limit(daysBetween)
+                    .map(localDate -> recursiveDay(localDate, weeklyPlanningEntity.getDayOfWeek()))
+                    .distinct()
+                    .filter(localDate -> !localDate.isAfter(planningEntity.getEndAt()) && localDate.isAfter(now))
+                    .forEach(localDateTime -> {
+                        final MatchInstanceEntity instanceEntity = new MatchInstanceEntity();
+                        instanceEntity.setAt(localDateTime);
+                        instanceEntity.setPlanning(planningEntity);
                     });
         }
     }

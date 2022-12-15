@@ -7,9 +7,10 @@ import java.util.Set;
 import java.util.UUID;
 
 public record MatchDefinition(
-        UUID id,
+        String id,
         Team team,
         String label,
+        boolean chatOpened,
         short numberOfParticipant,
 
         short numberOfDaysBeforeOpening,

@@ -1,27 +1,40 @@
 package fr.jadde.database.entity.match;
 
 import fr.jadde.database.entity.user.AbstractUser;
-import io.quarkus.hibernate.reactive.panache.PanacheEntity;
+import io.quarkus.hibernate.reactive.panache.PanacheEntityBase;
 import org.hibernate.Hibernate;
+import org.hibernate.annotations.Type;
 
 import javax.persistence.*;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.LinkedHashSet;
 import java.util.Objects;
 import java.util.Set;
+import java.util.UUID;
 
 @Entity
 @Table(name = "match_instances")
-public class MatchInstanceEntity extends PanacheEntity {
+public class MatchInstanceEntity extends PanacheEntityBase {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    @Column(name = "id", nullable = false, columnDefinition = "VARCHAR(36)")
+    @Type(type = "uuid-char")
+    private UUID id;
+
+    public UUID getId() {
+        return this.id;
+    }
 
     @Column(name = "at", nullable = false)
-    private LocalDateTime at;
+    private LocalDate at;
 
     @ManyToOne(optional = false)
     @JoinColumn(name = "planning_id", nullable = false)
     private PlanningEntity planning;
 
-    @ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REFRESH, CascadeType.DETACH})
+    @ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REFRESH, CascadeType.DETACH}, fetch = FetchType.EAGER)
     @JoinTable(name = "match_subscriptions",
             joinColumns = @JoinColumn(name = "match_instance_id"),
             inverseJoinColumns = @JoinColumn(name = "player_id"))
@@ -44,11 +57,11 @@ public class MatchInstanceEntity extends PanacheEntity {
         this.planning = planning;
     }
 
-    public LocalDateTime getAt() {
+    public LocalDate getAt() {
         return this.at;
     }
 
-    public void setAt(final LocalDateTime at) {
+    public void setAt(final LocalDate at) {
         this.at = at;
     }
 

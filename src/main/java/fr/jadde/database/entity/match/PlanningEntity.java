@@ -1,7 +1,8 @@
 package fr.jadde.database.entity.match;
 
-import io.quarkus.hibernate.reactive.panache.PanacheEntity;
+import io.quarkus.hibernate.reactive.panache.PanacheEntityBase;
 import org.hibernate.Hibernate;
+import org.hibernate.annotations.Type;
 
 import javax.persistence.*;
 import java.time.LocalDate;
@@ -9,17 +10,28 @@ import java.time.LocalTime;
 import java.util.LinkedHashSet;
 import java.util.Objects;
 import java.util.Set;
+import java.util.UUID;
 
 @Entity
 @Table(name = "plannings")
 @Inheritance(strategy = InheritanceType.JOINED)
-public abstract class PlanningEntity extends PanacheEntity {
+public abstract class PlanningEntity extends PanacheEntityBase {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    @Column(name = "id", nullable = false, columnDefinition = "VARCHAR(36)")
+    @Type(type = "uuid-char")
+    protected UUID id;
+
+    public UUID getId() {
+        return this.id;
+    }
 
     @ManyToOne(optional = false)
     @JoinColumn(name = "match_definition_id", nullable = false)
-    private MatchDefinitionEntity matchDefinitionEntity;
+    private MatchDefinitionEntity matchDefinition;
 
-    @OneToMany(mappedBy = "planning", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "planning", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
     private Set<MatchInstanceEntity> matchInstances = new LinkedHashSet<>();
 
 
@@ -73,12 +85,12 @@ public abstract class PlanningEntity extends PanacheEntity {
 
 
     public MatchDefinitionEntity getMatchDefinition() {
-        return this.matchDefinitionEntity;
+        return this.matchDefinition;
     }
 
     public void setMatchDefinition(final MatchDefinitionEntity matchDefinitionEntity) {
         matchDefinitionEntity.getPlannings().add(this);
-        this.matchDefinitionEntity = matchDefinitionEntity;
+        this.matchDefinition = matchDefinitionEntity;
     }
 
     @Override

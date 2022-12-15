@@ -31,6 +31,8 @@ public interface PlanningMapper {
 
     WeeklyPlanningEntity from(WeeklyPlanningModification planning);
 
+    @Mapping(source = "endAt", target = "endAt")
+    @Mapping(source = "startAt", target = "startAt")
     @Mapping(source = "matchInstances", target = "instances")
     WeeklyPlanning from(WeeklyPlanningEntity planning);
 

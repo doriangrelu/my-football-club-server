@@ -1,23 +1,47 @@
 package fr.jadde.database.entity;
 
 import fr.jadde.database.entity.match.MatchDefinitionEntity;
-import io.quarkus.hibernate.reactive.panache.PanacheEntity;
+import fr.jadde.database.entity.user.AbstractUser;
+import io.quarkus.hibernate.reactive.panache.PanacheEntityBase;
 import org.hibernate.Hibernate;
+import org.hibernate.annotations.Type;
 
 import javax.persistence.*;
 import java.util.LinkedHashSet;
 import java.util.Objects;
 import java.util.Set;
+import java.util.UUID;
 
 @Entity
 @Table(name = "teams")
-public class TeamEntity extends PanacheEntity {
+public class TeamEntity extends PanacheEntityBase {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    @Column(name = "id", nullable = false, columnDefinition = "VARCHAR(36)")
+    @Type(type = "uuid-char")
+    private UUID id;
+
+    @ManyToMany(mappedBy = "teams")
+    private Set<AbstractUser> users = new LinkedHashSet<>();
+
+    public UUID getId() {
+        return this.id;
+    }
 
     @Column(name = "name", unique = true)
     private String name;
 
     @OneToMany(mappedBy = "team", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<MatchDefinitionEntity> matchDefinitions = new LinkedHashSet<>();
+
+    public Set<AbstractUser> getUsers() {
+        return users;
+    }
+
+    public void setUsers(Set<AbstractUser> users) {
+        this.users = users;
+    }
 
     public Set<MatchDefinitionEntity> getMatchDefinitions() {
         return this.matchDefinitions;

@@ -8,7 +8,7 @@ import fr.jadde.domain.model.match.MatchInstance;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.Set;
 
@@ -17,15 +17,15 @@ import java.util.Set;
         property = "type"
 )
 @JsonSubTypes({
-        @JsonSubTypes.Type(value = WeeklyPlanning.class, name = "day"),
+        @JsonSubTypes.Type(value = WeeklyPlanning.class, name = "weekly"),
 })
 public abstract class AbstractPlanning {
 
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd-MM-yyyy hh:mm:ss")
-    private final LocalDateTime startAt;
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
+    private final LocalDate startAt;
 
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd-MM-yyyy hh:mm:ss")
-    private final LocalDateTime endAt;
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
+    private final LocalDate endAt;
 
     @JsonFormat(pattern = "HH:mm:ss")
     private final LocalTime hour;
@@ -33,8 +33,8 @@ public abstract class AbstractPlanning {
     private final Set<MatchInstance> instances;
 
     @JsonCreator
-    protected AbstractPlanning(final LocalDateTime startAt,
-                               final LocalDateTime endAt,
+    protected AbstractPlanning(final LocalDate startAt,
+                               final LocalDate endAt,
                                final LocalTime hour,
                                final Set<MatchInstance> instances
     ) {
@@ -48,11 +48,11 @@ public abstract class AbstractPlanning {
         return this.hour;
     }
 
-    public LocalDateTime getStartAt() {
+    public LocalDate getStartAt() {
         return this.startAt;
     }
 
-    public LocalDateTime getEndAt() {
+    public LocalDate getEndAt() {
         return this.endAt;
     }
 

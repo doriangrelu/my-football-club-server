@@ -9,7 +9,9 @@ import fr.jadde.service.util.DateTimeDeserializer;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 
+import javax.validation.constraints.Future;
 import javax.validation.constraints.NotNull;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 
@@ -24,24 +26,26 @@ public abstract class AbstractPlanningModification {
 
     @NotNull
     @JsonProperty("startAt")
-    @JsonDeserialize(using = DateTimeDeserializer.class)
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd-MM-yyyy hh:mm:ss")
-    private final LocalDateTime startAt;
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
+    private final LocalDate startAt;
 
     @NotNull
+    @Future
     @JsonProperty("endAt")
-    @JsonDeserialize(using = DateTimeDeserializer.class)
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd-MM-yyyy hh:mm:ss")
-    private final LocalDateTime endAt;
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
+    private final LocalDate endAt;
 
     @NotNull
     @JsonProperty("hour")
     @JsonFormat(pattern = "HH:mm:ss")
     private final LocalTime hour;
 
-    protected AbstractPlanningModification(final LocalDateTime startAt,
-                                           final LocalDateTime endAt,
+    protected AbstractPlanningModification(final LocalDate startAt,
+                                           final LocalDate endAt,
                                            final LocalTime hour) {
+        if(startAt.atStartOfDay().isAfter(endAt.atStartOfDay())) {
+            throw new IllegalArgumentException("Start date must less than end date");
+        }
         this.startAt = startAt;
         this.endAt = endAt;
         this.hour = hour;
@@ -51,11 +55,11 @@ public abstract class AbstractPlanningModification {
         return this.hour;
     }
 
-    public LocalDateTime getStartAt() {
+    public LocalDate getStartAt() {
         return this.startAt;
     }
 
-    public LocalDateTime getEndAt() {
+    public LocalDate getEndAt() {
         return this.endAt;
     }
 

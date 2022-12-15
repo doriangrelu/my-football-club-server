@@ -11,6 +11,8 @@ import java.util.Objects;
 public class PlayerEntity extends AbstractUser {
 
 
+
+
     @Override
     public boolean equals(final Object o) {
         if (this == o) {

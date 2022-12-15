@@ -1,6 +1,6 @@
 package fr.jadde.domain.model;
 
-public record Team(long id, String name) {
+public record Team(String id, String name) {
 
 
 }

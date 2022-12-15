@@ -9,6 +9,7 @@ import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 
 import java.time.DayOfWeek;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.Set;
@@ -18,8 +19,8 @@ public class WeeklyPlanning extends AbstractPlanning {
     public final DayOfWeek dayOfWeek;
 
     @JsonCreator
-    public WeeklyPlanning(final @JsonDeserialize(using = DateTimeDeserializer.class) @JsonProperty("startAt") LocalDateTime startAt,
-                          final @JsonDeserialize(using = DateTimeDeserializer.class) @JsonProperty("endAt") LocalDateTime endAt,
+    public WeeklyPlanning(final @JsonProperty("startAt") LocalDate startAt,
+                          final @JsonProperty("endAt") LocalDate endAt,
                           final @JsonProperty("hour") LocalTime hour,
                           final @JsonProperty("dayOfWeek") DayOfWeek dayOfWeek,
                           final @JsonProperty("instances") Set<MatchInstance> instances

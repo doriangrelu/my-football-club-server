@@ -5,9 +5,10 @@ import org.hibernate.validator.constraints.Range;
 
 import javax.validation.constraints.NotNull;
 import java.util.Set;
+import java.util.UUID;
 
 public record CreateDefinition(
-        @NotNull long teamIdentifier,
+        @NotNull UUID teamIdentifier,
         @NotNull String label,
         @NotNull boolean chatOpened,
         @Range(min = 1, max = 10) short numberOfDaysBeforeOpening,

@@ -1,0 +1,38 @@
+services:
+  db_service:
+    image: mysql
+    container_name: football-mysql-sso-dev
+    restart: unless-stopped
+    environment:
+      MYSQL_DATABASE: authenticationdb
+      MYSQL_USER: keycloak_user
+      MYSQL_PASSWORD: keycloak_password
+      MYSQL_ROOT_PASSWORD: root
+    ports:
+      - 3307:3306
+    networks:
+      - app
+  keycloak_service:
+    image: quay.io/keycloak/keycloak
+    container_name: football-keycloak-dev
+    restart: on-failure
+    depends_on:
+      - db_service
+    environment:
+      KEYCLOAK_ADMIN: admin
+      KEYCLOAK_ADMIN_PASSWORD: admin
+#      KC_HOSTNAME_PORT: 8180
+      KC_DB: mysql
+      KC_DB_URL: jdbc:mysql://db_service:3306/authenticationdb
+      KC_DB_USERNAME: root
+      KC_DB_PASSWORD: root
+      JDBC_PARAMS: "useSSL=false"
+    ports:
+      - 8180:8080
+    command:
+      - 'start-dev'
+    networks:
+      - app
+networks:
+  app:
+    driver: bridge

@@ -1,15 +1,49 @@
 package fr.jadde.domain.model.match;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import fr.jadde.domain.model.Player;
 
 import java.time.LocalDate;
 import java.util.List;
 
-public record MatchInstance(
-        @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd-MM-yyyy") LocalDate at,
-        List<Player> players,
-        MatchStatus status
+public class MatchInstance {
 
-) {
+    private final String id;
+
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd-MM-yyyy")
+    private final LocalDate at;
+    private final List<Player> players;
+
+    private MatchStatus status;
+
+    public MatchInstance(final String id, final LocalDate at, final List<Player> players) {
+        this.id = id;
+        this.at = at;
+        this.players = players;
+    }
+
+    public void setStatus(final MatchStatus status) {
+        this.status = status;
+    }
+
+    @JsonProperty("status")
+    public MatchStatus status() {
+        return status;
+    }
+
+    @JsonProperty("id")
+    public String id() {
+        return id;
+    }
+
+    @JsonProperty("at")
+    public LocalDate at() {
+        return at;
+    }
+
+    @JsonProperty("players")
+    public List<Player> players() {
+        return players;
+    }
 }

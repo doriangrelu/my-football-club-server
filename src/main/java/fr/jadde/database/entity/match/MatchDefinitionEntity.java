@@ -3,6 +3,7 @@ package fr.jadde.database.entity.match;
 import fr.jadde.database.entity.TeamEntity;
 import io.quarkus.hibernate.reactive.panache.PanacheEntityBase;
 import org.hibernate.Hibernate;
+import org.hibernate.annotations.Type;
 
 import javax.persistence.*;
 import java.util.LinkedHashSet;
@@ -16,8 +17,13 @@ public class MatchDefinitionEntity extends PanacheEntityBase {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    @Column(name = "id", nullable = false)
+    @Column(name = "id", nullable = false, columnDefinition = "VARCHAR(36)")
+    @Type(type = "uuid-char")
     private UUID id;
+
+    public UUID getId() {
+        return this.id;
+    }
 
     @Column(name = "label")
     private String label;
@@ -26,7 +32,7 @@ public class MatchDefinitionEntity extends PanacheEntityBase {
     @Column(name = "number_of_participant")
     private Short numberOfParticipant;
 
-    @OneToMany(mappedBy = "matchDefinitionEntity", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "matchDefinition", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
     private Set<PlanningEntity> plannings = new LinkedHashSet<>();
 
     @ManyToOne(optional = false)
@@ -39,10 +45,6 @@ public class MatchDefinitionEntity extends PanacheEntityBase {
     @Column(name = "chat_opened", nullable = false)
     private Boolean chatOpened = false;
 
-
-    public UUID getId() {
-        return this.id;
-    }
 
     public Boolean getChatOpened() {
         return this.chatOpened;
