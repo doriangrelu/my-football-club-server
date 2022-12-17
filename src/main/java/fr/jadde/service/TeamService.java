@@ -1,7 +1,7 @@
 package fr.jadde.service;
 
 import fr.jadde.database.entity.TeamEntity;
-import fr.jadde.database.entity.TeamInvitation;
+import fr.jadde.database.entity.TeamInvitationEntity;
 import fr.jadde.database.entity.TeamInvitationStatus;
 import fr.jadde.database.entity.UserEntity;
 import fr.jadde.domain.command.team.CreateTeamCommand;
@@ -86,7 +86,7 @@ public class TeamService {
 
     public Uni<Team> createTeamInvitation(final CreateTeamInvitationCommand command, final String userIdentifier, final UUID teamIdentifier) {
         final AtomicReference<String> jwtToken = new AtomicReference<>();
-        return TeamEntity.<TeamEntity>find("from TeamEntity t inner join fetch t.owner where t.id=?1 and t.id=?2", userIdentifier, teamIdentifier)
+        return TeamEntity.<TeamEntity>find("from TeamEntity t inner join fetch t.owner o where o.id=?1 and t.id=?2", userIdentifier, teamIdentifier)
                 .firstResult()
                 .onItem()
                 .ifNull()
@@ -96,7 +96,7 @@ public class TeamService {
                     final LocalDateTime now = LocalDateTime.now();
                     final Pair<String, String> token = this.generateTokenInvitation(userIdentifier, duration);
 
-                    final TeamInvitation invitation = new TeamInvitation();
+                    final TeamInvitationEntity invitation = new TeamInvitationEntity();
                     invitation.setTeam(team);
                     invitation.setTeamInvitationStatus(TeamInvitationStatus.PENDING);
                     invitation.setLimitDate(now.toLocalDate().atStartOfDay().plusDays(duration.toDays()));
@@ -104,9 +104,9 @@ public class TeamService {
 
                     jwtToken.set(token.getRight());
 
-                    return invitation.<TeamInvitation>persistAndFlush();
+                    return invitation.<TeamInvitationEntity>persistAndFlush();
                 })
-                .map(TeamInvitation::getTeam)
+                .map(TeamInvitationEntity::getTeam)
                 .invoke(o -> {
                     this.handleSendInvitation(command.email(), command.message(), jwtToken.get());
                 })

@@ -20,7 +20,6 @@ public class TeamInvitationResource {
         this.teamService = teamService;
     }
 
-
     @POST
     @Path("/{uuid}")
     @Consumes("application/json")

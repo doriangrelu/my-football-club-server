@@ -10,8 +10,8 @@ import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Entity
-@Table(name = "team_invitation")
-public class TeamInvitation extends PanacheEntityBase {
+@Table(name = "team_invitations")
+public class TeamInvitationEntity extends PanacheEntityBase {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -34,7 +34,7 @@ public class TeamInvitation extends PanacheEntityBase {
     @JoinColumn(name = "team_id", nullable = false)
     private TeamEntity team;
 
-    @ManyToOne(optional = false)
+    @ManyToOne
     @JoinColumn(name = "user_id")
     private UserEntity user;
 
