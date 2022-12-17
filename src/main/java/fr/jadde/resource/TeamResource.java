@@ -1,15 +1,19 @@
 package fr.jadde.resource;
 
-import fr.jadde.database.entity.TeamEntity;
 import fr.jadde.domain.command.team.CreateTeamCommand;
+import fr.jadde.domain.model.Team;
 import fr.jadde.service.TeamService;
+import fr.jadde.service.util.SecurityUtils;
 import io.smallrye.mutiny.Uni;
 
+import javax.annotation.security.RolesAllowed;
 import javax.validation.Valid;
 import javax.ws.rs.*;
+import javax.ws.rs.core.SecurityContext;
 import java.util.List;
 
 @Path("/team")
+@RolesAllowed("default-user")
 public class TeamResource {
 
     private final TeamService teamService;
@@ -21,13 +25,13 @@ public class TeamResource {
     @POST
     @Consumes("application/json")
     @Produces("application/json")
-    public Uni<TeamEntity> create(final @Valid CreateTeamCommand command) {
-        return this.teamService.create(command);
+    public Uni<Team> create(final @Valid CreateTeamCommand command, final SecurityContext context) {
+        return this.teamService.create(SecurityUtils.extractUserId(context), command);
     }
 
     @GET
     @Produces("application/json")
-    public Uni<List<TeamEntity>> all() {
+    public Uni<List<Team>> all() {
         return this.teamService.getAll();
     }
 

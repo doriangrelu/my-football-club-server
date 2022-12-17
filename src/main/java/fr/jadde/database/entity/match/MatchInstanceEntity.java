@@ -1,13 +1,12 @@
 package fr.jadde.database.entity.match;
 
-import fr.jadde.database.entity.user.AbstractUser;
+import fr.jadde.database.entity.UserEntity;
 import io.quarkus.hibernate.reactive.panache.PanacheEntityBase;
 import org.hibernate.Hibernate;
 import org.hibernate.annotations.Type;
 
 import javax.persistence.*;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.LinkedHashSet;
 import java.util.Objects;
 import java.util.Set;
@@ -38,13 +37,13 @@ public class MatchInstanceEntity extends PanacheEntityBase {
     @JoinTable(name = "match_subscriptions",
             joinColumns = @JoinColumn(name = "match_instance_id"),
             inverseJoinColumns = @JoinColumn(name = "player_id"))
-    private Set<AbstractUser> players = new LinkedHashSet<>();
+    private Set<UserEntity> players = new LinkedHashSet<>();
 
-    public Set<AbstractUser> getPlayers() {
+    public Set<UserEntity> getPlayers() {
         return this.players;
     }
 
-    public void setPlayers(final Set<AbstractUser> players) {
+    public void setPlayers(final Set<UserEntity> players) {
         this.players = players;
     }
 

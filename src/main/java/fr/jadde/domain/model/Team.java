@@ -1,6 +1,12 @@
 package fr.jadde.domain.model;
 
-public record Team(String id, String name) {
+import java.util.Set;
+
+public record Team(String id,
+                   String name,
+                   UserInformation owner,
+                   Set<UserInformation> members
+) {
 
 
 }

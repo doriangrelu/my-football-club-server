@@ -26,7 +26,7 @@ public class MatchResource {
     @Path("/definition")
     @Consumes("application/json")
     @Produces("application/json")
-    public Uni<MatchDefinition> createDefinition(final @Valid CreateDefinition definition, SecurityContext context) {
+    public Uni<MatchDefinition> createDefinition(final @Valid CreateDefinition definition, final SecurityContext context) {
         return this.matchService.createDefinition(definition);
     }
 

@@ -1,7 +1,6 @@
 package fr.jadde.database.entity;
 
 import fr.jadde.database.entity.match.MatchDefinitionEntity;
-import fr.jadde.database.entity.user.AbstractUser;
 import io.quarkus.hibernate.reactive.panache.PanacheEntityBase;
 import org.hibernate.Hibernate;
 import org.hibernate.annotations.Type;
@@ -22,25 +21,38 @@ public class TeamEntity extends PanacheEntityBase {
     @Type(type = "uuid-char")
     private UUID id;
 
-    @ManyToMany(mappedBy = "teams")
-    private Set<AbstractUser> users = new LinkedHashSet<>();
+    @ManyToMany(mappedBy = "memberTeams", fetch = FetchType.EAGER)
+    private Set<UserEntity> members = new LinkedHashSet<>();
+
+    @ManyToOne(optional = false)
+    @JoinColumn(name = "owner_id", nullable = false)
+    private UserEntity owner;
 
     public UUID getId() {
         return this.id;
     }
 
-    @Column(name = "name", unique = true)
+    @Column(name = "name")
     private String name;
 
     @OneToMany(mappedBy = "team", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<MatchDefinitionEntity> matchDefinitions = new LinkedHashSet<>();
 
-    public Set<AbstractUser> getUsers() {
-        return users;
+    public UserEntity getOwner() {
+        return owner;
     }
 
-    public void setUsers(Set<AbstractUser> users) {
-        this.users = users;
+    public void setOwner(UserEntity owner) {
+        owner.getOwnTeams().add(this);
+        this.owner = owner;
+    }
+
+    public Set<UserEntity> getMembers() {
+        return members;
+    }
+
+    public void setMembers(Set<UserEntity> members) {
+        this.members = members;
     }
 
     public Set<MatchDefinitionEntity> getMatchDefinitions() {

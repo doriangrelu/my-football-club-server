@@ -29,6 +29,8 @@ public interface PlanningMapper {
         throw new UnsupportedOperationException("Cannot find mapper");
     }
 
+    @Mapping(target = "matchInstances", ignore = true)
+    @Mapping(target = "matchDefinition", ignore = true)
     WeeklyPlanningEntity from(WeeklyPlanningModification planning);
 
     @Mapping(source = "endAt", target = "endAt")
