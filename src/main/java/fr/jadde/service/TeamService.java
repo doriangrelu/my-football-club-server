@@ -1,24 +1,44 @@
 package fr.jadde.service;
 
 import fr.jadde.database.entity.TeamEntity;
+import fr.jadde.database.entity.TeamInvitation;
+import fr.jadde.database.entity.TeamInvitationStatus;
 import fr.jadde.database.entity.UserEntity;
 import fr.jadde.domain.command.team.CreateTeamCommand;
+import fr.jadde.domain.command.team.CreateTeamInvitationCommand;
 import fr.jadde.domain.model.Team;
 import fr.jadde.exception.HttpPrintableException;
 import fr.jadde.service.client.AuthoritySelfRemoteService;
 import fr.jadde.service.mapper.TeamMapper;
+import io.smallrye.jwt.build.Jwt;
 import io.smallrye.mutiny.Uni;
+import org.apache.commons.lang3.tuple.Pair;
+import org.eclipse.microprofile.config.inject.ConfigProperty;
+import org.eclipse.microprofile.jwt.Claims;
 import org.eclipse.microprofile.rest.client.inject.RestClient;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
+import java.time.Duration;
+import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
+import java.util.UUID;
+import java.util.concurrent.atomic.AtomicReference;
 
 @ApplicationScoped
 public class TeamService {
 
+    public static final Logger LOGGER = LoggerFactory.getLogger(TeamService.class);
+
     private final UserService userService;
     private final TeamMapper teamMapper;
+
+    @ConfigProperty(name = "token.team.invitation.secret")
+    String invitationSecret;
+
     @Inject
     @RestClient
     AuthoritySelfRemoteService authoritySelfRemoteService;
@@ -33,6 +53,11 @@ public class TeamService {
         return TeamEntity.<TeamEntity>find("select distinct t from TeamEntity t inner join fetch t.owner o where o.id=?1", userIdentifier)
                 .list()
                 .map(this.teamMapper::from);
+    }
+
+    public Uni<Team> addTeamMember() {
+
+        return null;
     }
 
     public Uni<Team> create(final String userOwnerIdentifier, final CreateTeamCommand create) {
@@ -57,6 +82,50 @@ public class TeamService {
                     return user.<UserEntity>persistAndFlush().map(dummy -> teamEntity);
                 })
                 .map(this.teamMapper::from);
+    }
+
+    public Uni<Team> createTeamInvitation(final CreateTeamInvitationCommand command, final String userIdentifier, final UUID teamIdentifier) {
+        final AtomicReference<String> jwtToken = new AtomicReference<>();
+        return TeamEntity.<TeamEntity>find("from TeamEntity t inner join fetch t.owner where t.id=?1 and t.id=?2", userIdentifier, teamIdentifier)
+                .firstResult()
+                .onItem()
+                .ifNull()
+                .failWith(() -> HttpPrintableException.builder(404, "Not found").build())
+                .chain(team -> {
+                    final Duration duration = Duration.of(15, ChronoUnit.DAYS);
+                    final LocalDateTime now = LocalDateTime.now();
+                    final Pair<String, String> token = this.generateTokenInvitation(userIdentifier, duration);
+
+                    final TeamInvitation invitation = new TeamInvitation();
+                    invitation.setTeam(team);
+                    invitation.setTeamInvitationStatus(TeamInvitationStatus.PENDING);
+                    invitation.setLimitDate(now.toLocalDate().atStartOfDay().plusDays(duration.toDays()));
+                    invitation.setTokenIdentifier(token.getLeft());
+
+                    jwtToken.set(token.getRight());
+
+                    return invitation.<TeamInvitation>persistAndFlush();
+                })
+                .map(TeamInvitation::getTeam)
+                .invoke(o -> {
+                    this.handleSendInvitation(command.email(), command.message(), jwtToken.get());
+                })
+                .map(this.teamMapper::from);
+    }
+
+    private void handleSendInvitation(final String userEmail, final String message, final String token) {
+        // todo send email !
+        LOGGER.info("Handle send invitation (token: '{}') to user {} with message '{}'", token, userEmail, message);
+    }
+
+    private Pair<String, String> generateTokenInvitation(final String userIdentifier, final Duration expiration) {
+        final String jti = UUID.randomUUID().toString();
+        return Pair.of(jti, Jwt.claim("typ", "team_invitation")
+                .subject(userIdentifier)
+                .claim(Claims.jti.name(), jti)
+                .expiresIn(expiration)
+                .signWithSecret(this.invitationSecret)
+        );
     }
 
 }
