@@ -11,6 +11,7 @@ import javax.annotation.security.RolesAllowed;
 import javax.validation.Valid;
 import javax.ws.rs.*;
 import javax.ws.rs.core.SecurityContext;
+import java.util.List;
 import java.util.UUID;
 
 @Path("/match")
@@ -39,8 +40,16 @@ public class MatchResource {
     @Path("/definition/{uuid}")
     @Consumes("application/json")
     @Produces("application/json")
-    public Uni<MatchDefinition> getDefinition(final @PathParam("uuid") UUID uuid) {
+    public Uni<MatchDefinition> get(final @PathParam("uuid") UUID uuid) {
         return this.matchService.getDefinition(uuid);
+    }
+
+    @GET
+    @Path("/definitions")
+    @Consumes("application/json")
+    @Produces("application/json")
+    public Uni<List<MatchDefinition>> getAll(final SecurityContext context, final @QueryParam("teamId") UUID teamIdentifier) {
+        return this.matchService.getAllDefinitions(SecurityUtils.extractUserId(context), teamIdentifier);
     }
 
 }

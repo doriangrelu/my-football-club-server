@@ -18,9 +18,7 @@ import javax.enterprise.context.ApplicationScoped;
 import java.time.DayOfWeek;
 import java.time.Duration;
 import java.time.LocalDate;
-import java.util.Map;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Stream;
 
@@ -58,6 +56,19 @@ public class MatchService {
                 .onItem()
                 .ifNull()
                 .failWith(() -> HttpPrintableException.builder(404, "Not found").build())
+                .map(this.definitionMapper::from);
+    }
+
+    public Uni<List<MatchDefinition>> getAllDefinitions(final String userIdentifier, final UUID teamIdentifier) {
+        final List<Object> requestParameters = new ArrayList<>();
+        String request = "from MatchDefinitionEntity d inner join fetch d.team t inner join fetch t.owner o where o.id=?1";
+        requestParameters.add(userIdentifier);
+        if (null != teamIdentifier) {
+            request += " and t.id=?2";
+            requestParameters.add(teamIdentifier);
+        }
+        return MatchDefinitionEntity.<MatchDefinitionEntity>find(request, requestParameters.toArray())
+                .list()
                 .map(this.definitionMapper::from);
     }
 
