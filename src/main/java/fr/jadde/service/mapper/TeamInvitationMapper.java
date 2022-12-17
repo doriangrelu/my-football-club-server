@@ -9,6 +9,7 @@ import org.mapstruct.MappingConstants;
 @Mapper(componentModel = MappingConstants.ComponentModel.CDI)
 public interface TeamInvitationMapper {
 
+    @Mapping(source = "teamInvitationStatus", target = "status")
     @Mapping(source = "limitDate", target = "endAt")
     TeamInvitation from(TeamInvitationEntity teamInvitationEntity);
 

@@ -112,7 +112,7 @@ public class TeamService {
     }
 
     private void handleSendInvitation(final String userEmail, final String message, final String token) {
-        // todo send email !
+        // todo send toEmail !
         LOGGER.info("Handle send invitation (token: '{}') to user {} with message '{}'", token, userEmail, message);
     }
 
