@@ -9,27 +9,35 @@ import fr.jadde.domain.command.match.CreateDefinition;
 import fr.jadde.domain.model.match.MatchDefinition;
 import fr.jadde.exception.HttpPrintableException;
 import fr.jadde.service.mapper.MatchDefinitionMapper;
+import fr.jadde.service.spi.voter.VoterService;
+import io.quarkus.security.UnauthorizedException;
 import io.smallrye.mutiny.Uni;
-import io.vertx.ext.web.handler.HttpException;
 import org.hibernate.reactive.mutiny.Mutiny;
 
 import javax.enterprise.context.ApplicationScoped;
-import javax.validation.ConstraintViolationException;
 import java.time.DayOfWeek;
 import java.time.Duration;
 import java.time.LocalDate;
-import java.util.*;
+import java.util.Map;
+import java.util.Set;
+import java.util.UUID;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Stream;
 
 @ApplicationScoped
 public class MatchService {
 
+    private final UserService userService;
+
     private final MatchDefinitionMapper definitionMapper;
 
+    private final VoterService voterService;
 
-    public MatchService(final MatchDefinitionMapper definitionMapper) {
+
+    public MatchService(final UserService userService, final MatchDefinitionMapper definitionMapper, final VoterService voterService) {
+        this.userService = userService;
         this.definitionMapper = definitionMapper;
+        this.voterService = voterService;
     }
 
     private static LocalDate recursiveDay(final LocalDate start, final DayOfWeek dayOfWeek) {
@@ -53,7 +61,7 @@ public class MatchService {
                 .map(this.definitionMapper::from);
     }
 
-    public Uni<MatchDefinition> createDefinition(final CreateDefinition createDefinition) {
+    public Uni<MatchDefinition> createDefinition(final String userIdentifier, final CreateDefinition createDefinition) {
         this.handleCheckPlanningDatesOrFail(createDefinition);
         final MatchDefinitionEntity definitionEntity = this.definitionMapper.from(createDefinition);
         final AtomicReference<TeamEntity> team = new AtomicReference<>();
@@ -61,6 +69,11 @@ public class MatchService {
                 .onItem()
                 .ifNull()
                 .failWith(() -> HttpPrintableException.builder(404, "Not found").build())
+                .chain(teamEntity -> this.userService.createIfNecessary(userIdentifier)
+                        .flatMap(user -> !this.voterService.isDenyAccessUnlessGranted("action::createMatchDefinition", teamEntity, Map.of(
+                                "userIdentifier", userIdentifier
+                        )) ? Uni.createFrom().item(teamEntity) : Uni.createFrom().failure(UnauthorizedException::new))
+                )
                 .invoke(team::set)
                 .chain(teamEntity -> Mutiny.fetch(teamEntity.getMatchDefinitions()))
                 .flatMap(matchDefinitionEntities -> {

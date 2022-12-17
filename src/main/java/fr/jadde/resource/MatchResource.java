@@ -3,6 +3,8 @@ package fr.jadde.resource;
 import fr.jadde.domain.command.match.CreateDefinition;
 import fr.jadde.domain.model.match.MatchDefinition;
 import fr.jadde.service.MatchService;
+import fr.jadde.service.spi.voter.VoterService;
+import fr.jadde.service.util.SecurityUtils;
 import io.smallrye.mutiny.Uni;
 
 import javax.annotation.security.RolesAllowed;
@@ -17,8 +19,11 @@ public class MatchResource {
 
     private final MatchService matchService;
 
-    public MatchResource(final MatchService matchService) {
+    private final VoterService voterService;
+
+    public MatchResource(final MatchService matchService, final VoterService voterService) {
         this.matchService = matchService;
+        this.voterService = voterService;
     }
 
 
@@ -27,7 +32,7 @@ public class MatchResource {
     @Consumes("application/json")
     @Produces("application/json")
     public Uni<MatchDefinition> createDefinition(final @Valid CreateDefinition definition, final SecurityContext context) {
-        return this.matchService.createDefinition(definition);
+        return this.matchService.createDefinition(SecurityUtils.extractUserId(context), definition);
     }
 
     @GET

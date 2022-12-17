@@ -15,4 +15,6 @@ public record CreateDefinition(
         @Range(min = 1, max = 22) @NotNull short numberOfParticipant,
         @NotNull Set<AbstractPlanningModification> plannings
 ) {
+
+
 }
