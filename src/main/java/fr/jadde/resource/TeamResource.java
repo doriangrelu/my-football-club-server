@@ -31,8 +31,8 @@ public class TeamResource {
 
     @GET
     @Produces("application/json")
-    public Uni<List<Team>> all() {
-        return this.teamService.getAll();
+    public Uni<List<Team>> all(final SecurityContext context) {
+        return this.teamService.getAllFromOwner(SecurityUtils.extractUserId(context));
     }
 
 }

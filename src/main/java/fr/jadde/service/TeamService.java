@@ -17,13 +17,11 @@ import java.util.List;
 @ApplicationScoped
 public class TeamService {
 
+    private final UserService userService;
+    private final TeamMapper teamMapper;
     @Inject
     @RestClient
     AuthoritySelfRemoteService authoritySelfRemoteService;
-
-    private final UserService userService;
-
-    private final TeamMapper teamMapper;
 
     public TeamService(final UserService userService, final TeamMapper teamMapper) {
         this.userService = userService;
@@ -31,8 +29,8 @@ public class TeamService {
     }
 
     //todo remove this function used fo debug
-    public Uni<List<Team>> getAll() {
-        return TeamEntity.<TeamEntity>findAll()
+    public Uni<List<Team>> getAllFromOwner(final String userIdentifier) {
+        return TeamEntity.<TeamEntity>find("select distinct t from TeamEntity t inner join fetch t.owner o where o.id=?1", userIdentifier)
                 .list()
                 .map(this.teamMapper::from);
     }
