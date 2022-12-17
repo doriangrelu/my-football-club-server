@@ -1,7 +1,7 @@
 package fr.jadde.resource;
 
 import fr.jadde.domain.command.team.CreateTeamInvitationCommand;
-import fr.jadde.domain.model.Team;
+import fr.jadde.domain.model.TeamInvitation;
 import fr.jadde.service.TeamService;
 import fr.jadde.service.util.SecurityUtils;
 import io.smallrye.mutiny.Uni;
@@ -24,7 +24,7 @@ public class TeamInvitationResource {
     @Path("/{uuid}")
     @Consumes("application/json")
     @Produces("application/json")
-    public Uni<Team> create(final @Valid CreateTeamInvitationCommand command, final @PathParam("uuid") UUID teamIdentifier, final SecurityContext context) {
+    public Uni<TeamInvitation> create(final @Valid CreateTeamInvitationCommand command, final @PathParam("uuid") UUID teamIdentifier, final SecurityContext context) {
         return this.teamService.createTeamInvitation(command, SecurityUtils.extractUserId(context), teamIdentifier);
     }
 

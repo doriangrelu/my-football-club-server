@@ -7,20 +7,19 @@ import fr.jadde.database.entity.UserEntity;
 import fr.jadde.domain.command.team.CreateTeamCommand;
 import fr.jadde.domain.command.team.CreateTeamInvitationCommand;
 import fr.jadde.domain.model.Team;
+import fr.jadde.domain.model.TeamInvitation;
 import fr.jadde.exception.HttpPrintableException;
-import fr.jadde.service.client.AuthoritySelfRemoteService;
+import fr.jadde.service.mapper.TeamInvitationMapper;
 import fr.jadde.service.mapper.TeamMapper;
 import io.smallrye.jwt.build.Jwt;
 import io.smallrye.mutiny.Uni;
 import org.apache.commons.lang3.tuple.Pair;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.eclipse.microprofile.jwt.Claims;
-import org.eclipse.microprofile.rest.client.inject.RestClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
@@ -36,16 +35,15 @@ public class TeamService {
     private final UserService userService;
     private final TeamMapper teamMapper;
 
+    private final TeamInvitationMapper teamInvitationMapper;
+
     @ConfigProperty(name = "token.team.invitation.secret")
     String invitationSecret;
 
-    @Inject
-    @RestClient
-    AuthoritySelfRemoteService authoritySelfRemoteService;
-
-    public TeamService(final UserService userService, final TeamMapper teamMapper) {
+    public TeamService(final UserService userService, final TeamMapper teamMapper, final TeamInvitationMapper teamInvitationMapper) {
         this.userService = userService;
         this.teamMapper = teamMapper;
+        this.teamInvitationMapper = teamInvitationMapper;
     }
 
     //todo remove this function used fo debug
@@ -84,7 +82,7 @@ public class TeamService {
                 .map(this.teamMapper::from);
     }
 
-    public Uni<Team> createTeamInvitation(final CreateTeamInvitationCommand command, final String userIdentifier, final UUID teamIdentifier) {
+    public Uni<TeamInvitation> createTeamInvitation(final CreateTeamInvitationCommand command, final String userIdentifier, final UUID teamIdentifier) {
         final AtomicReference<String> jwtToken = new AtomicReference<>();
         return TeamEntity.<TeamEntity>find("from TeamEntity t inner join fetch t.owner o where o.id=?1 and t.id=?2", userIdentifier, teamIdentifier)
                 .firstResult()
@@ -100,17 +98,17 @@ public class TeamService {
                     invitation.setTeam(team);
                     invitation.setTeamInvitationStatus(TeamInvitationStatus.PENDING);
                     invitation.setLimitDate(now.toLocalDate().atStartOfDay().plusDays(duration.toDays()));
+                    invitation.setToEmail(command.email());
                     invitation.setTokenIdentifier(token.getLeft());
 
                     jwtToken.set(token.getRight());
 
                     return invitation.<TeamInvitationEntity>persistAndFlush();
                 })
-                .map(TeamInvitationEntity::getTeam)
                 .invoke(o -> {
                     this.handleSendInvitation(command.email(), command.message(), jwtToken.get());
                 })
-                .map(this.teamMapper::from);
+                .map(this.teamInvitationMapper::from);
     }
 
     private void handleSendInvitation(final String userEmail, final String message, final String token) {

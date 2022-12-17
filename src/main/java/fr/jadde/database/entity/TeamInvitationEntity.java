@@ -34,6 +34,7 @@ public class TeamInvitationEntity extends PanacheEntityBase {
     @JoinColumn(name = "team_id", nullable = false)
     private TeamEntity team;
 
+
     @ManyToOne
     @JoinColumn(name = "user_id")
     private UserEntity user;
@@ -44,6 +45,16 @@ public class TeamInvitationEntity extends PanacheEntityBase {
     @Column(name = "limit_date", nullable = false)
     private LocalDateTime limitDate;
 
+    @Column(name = "to_email", nullable = false)
+    private String toEmail;
+
+    public String getToEmail() {
+        return this.toEmail;
+    }
+
+    public void setToEmail(final String toEmail) {
+        this.toEmail = toEmail;
+    }
 
     public LocalDateTime getLimitDate() {
         return this.limitDate;
